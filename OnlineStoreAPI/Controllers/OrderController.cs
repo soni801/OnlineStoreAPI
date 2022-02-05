@@ -20,4 +20,16 @@ public class OrderController : Controller
     {
         return _orderService.GetOrder(id);
     }
+
+    [HttpPost("new")]
+    public bool CreateOrder(int userId, int addressId, float totalPrice)
+    {
+        return _orderService.CreateOrder(userId, addressId, totalPrice);
+    }
+
+    [HttpPost("link")]
+    public bool AddProductToOrder(int orderId, int productId, int quantity)
+    {
+        return _orderService.AddProductToOrder(orderId, productId, quantity);
+    }
 }
