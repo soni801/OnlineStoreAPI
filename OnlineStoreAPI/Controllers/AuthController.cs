@@ -15,7 +15,7 @@ public class AuthController : Controller
     }
 
     [HttpGet]
-    public bool VerifyCredentials(string user, string pass)
+    public string VerifyCredentials(string user, string pass)
     {
         return _authService.VerifyCredentials(user, pass);
     }

@@ -6,10 +6,12 @@ namespace OnlineStoreAPI.Services;
 
 public class AuthService : IAuthService
 {
-    public bool VerifyCredentials(string user, string pass)
+    public string VerifyCredentials(string user, string pass)
     {
+        var token = "";
+        
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
-        const string commandString = "select count(*) from online_store.credentials where username = @user and passphrase = @pass";
+        const string commandString = "select token from online_store.credentials where username = @user and passphrase = @pass";
         var command = new MySqlCommand(commandString, connection);
 
         command.Parameters.AddWithValue("@user", user);
@@ -18,8 +20,8 @@ public class AuthService : IAuthService
         connection.Open();
 
         using var reader = command.ExecuteReader();
-        while (reader.Read()) if ((Int64) reader[0] == 1) return true;
+        while (reader.Read()) token = (string) reader[0];
 
-        return false;
+        return token;
     }
 }
