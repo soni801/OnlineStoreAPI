@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStoreAPI.Interfaces;
+using OnlineStoreAPI.Models;
 
 namespace OnlineStoreAPI.Controllers;
 
@@ -14,6 +15,12 @@ public class UserController : Controller
         _userService = userService;
     }
 
+    [HttpGet]
+    public User GetUser(int id)
+    {
+        return _userService.GetUser(id);
+    }
+    
     [HttpPost]
     public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase, int accessLevel)
     {

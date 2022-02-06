@@ -1,5 +1,6 @@
 ﻿using MySqlConnector;
 using OnlineStoreAPI.Interfaces;
+using OnlineStoreAPI.Models;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace OnlineStoreAPI.Services;
@@ -14,7 +15,39 @@ public class UserService : IUserService
         return new string(Enumerable.Repeat(chars, length)
             .Select(s => s[Random.Next(s.Length)]).ToArray());
     }
-    
+
+    public User GetUser(int id)
+    {
+        var user = new User();
+        
+        using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
+        const string commandString = "select * from online_store.users, online_store.credentials where users.username = credentials.username and id = @id";
+        var command = new MySqlCommand(commandString, connection);
+
+        command.Parameters.AddWithValue("@id", id);
+        
+        connection.Open();
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            user.Id = (int) reader["id"];
+            user.FirstName = (string) reader["first_name"];
+            user.LastName = (string) reader["last_name"];
+            user.Credentials = new Credentials
+            {
+                Username = (string) reader["username"],
+                Passphrase = (string) reader["passphrase"],
+                Token = (string) reader["token"],
+                AccessLevel = (int) reader["access_level"]
+            };
+            user.Email = (string) reader["email"];
+            user.PhoneNumber = (int) reader["phone_number"];
+        }
+
+        return user;
+    }
+
     public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase, int accessLevel)
     {
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
