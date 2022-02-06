@@ -21,6 +21,12 @@ public class OrderController : Controller
         return _orderService.GetOrder(id);
     }
 
+    [HttpGet("user")]
+    public IEnumerable<Order> GetUserOrders(int id)
+    {
+        return _orderService.GetUserOrders(id);
+    }
+
     [HttpPost("new")]
     public bool CreateOrder(int userId, int addressId, float totalPrice)
     {
