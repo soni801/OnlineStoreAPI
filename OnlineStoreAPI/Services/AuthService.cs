@@ -24,4 +24,28 @@ public class AuthService : IAuthService
 
         return token;
     }
+
+    public bool UpdatePassphrase(string user, string pass, string newPass)
+    {
+        using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
+        const string commandString = "update online_store.credentials set passphrase = @newPass where username = @user and passphrase = @pass";
+        var command = new MySqlCommand(commandString, connection);
+
+        command.Parameters.AddWithValue("@user", user);
+        command.Parameters.AddWithValue("@pass", pass);
+        command.Parameters.AddWithValue("@newPass", newPass);
+
+        try
+        {
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+
+        return true;
+    }
 }

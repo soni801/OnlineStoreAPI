@@ -19,4 +19,10 @@ public class AuthController : Controller
     {
         return _authService.VerifyCredentials(user, pass);
     }
+
+    [HttpPost]
+    public bool UpdatePassphrase(string user, string pass, string newPass)
+    {
+        return _authService.UpdatePassphrase(user, pass, newPass);
+    }
 }
