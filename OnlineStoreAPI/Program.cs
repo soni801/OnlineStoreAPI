@@ -1,3 +1,5 @@
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using OnlineStoreAPI.Interfaces;
 using OnlineStoreAPI.Services;
 
@@ -14,6 +16,14 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.WebHost.UseKestrel(serverOptions =>
+{
+    serverOptions.Listen(IPAddress.Any, 5000, listenOptions =>
+    {
+        listenOptions.UseHttps(new X509Certificate2("cert.pfx", "Passord01"));
+    });
+});
+
 builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", b =>
 {
     b.AllowAnyOrigin()
@@ -25,9 +35,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+app.UseHsts();
 app.UseCors("CorsPolicy");
-
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
