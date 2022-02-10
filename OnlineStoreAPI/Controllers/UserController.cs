@@ -22,9 +22,9 @@ public class UserController : Controller
     }
     
     [HttpPost]
-    public bool CreateUser([FromHeader] string firstName, [FromHeader] string lastName, [FromHeader] string username, [FromHeader] string email, [FromHeader] int phoneNumber, [FromHeader] string passphrase, int accessLevel)
+    public bool CreateUser([FromHeader] string firstName, [FromHeader] string lastName, [FromHeader] string username, [FromHeader] string email, [FromHeader] int phoneNumber, [FromHeader] string passphrase, int accessLevel, [FromHeader] string profilePictureUrl)
     {
-        return _userService.CreateUser(firstName, lastName, username, email, phoneNumber, passphrase, accessLevel);
+        return _userService.CreateUser(firstName, lastName, username, email, phoneNumber, passphrase, accessLevel, profilePictureUrl);
     }
 
     [HttpDelete]

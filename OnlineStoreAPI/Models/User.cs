@@ -8,4 +8,5 @@ public class User
     public Credentials Credentials { get; set; } = null!;
     public string Email { get; set; } = null!;
     public int PhoneNumber { get; set; }
+    public string ProfilePictureUrl { get; set; } = null!;
 }

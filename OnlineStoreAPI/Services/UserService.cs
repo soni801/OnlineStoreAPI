@@ -43,19 +43,20 @@ public class UserService : IUserService
             };
             user.Email = (string) reader["email"];
             user.PhoneNumber = (int) reader["phone_number"];
+            user.ProfilePictureUrl = (string) reader["profile_picture_url"];
         }
 
         return user;
     }
 
-    public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase, int accessLevel)
+    public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase, int accessLevel, string profilePictureUrl)
     {
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
         
         const string credentialsString = "insert into online_store.credentials (username, passphrase, token, access_level) values (@username, @passphrase, @token, @access_level)";
         var credentialsCommand = new MySqlCommand(credentialsString, connection);
         
-        const string userString = "insert into online_store.users (first_name, last_name, username, email, phone_number) values (@first_name, @last_name, @username, @email, @phone_number)";
+        const string userString = "insert into online_store.users (first_name, last_name, username, email, phone_number, profile_picture_url) values (@first_name, @last_name, @username, @email, @phone_number, @profile_picture_url)";
         var userCommand = new MySqlCommand(userString, connection);
 
         credentialsCommand.Parameters.AddWithValue("@username", username);
@@ -68,6 +69,7 @@ public class UserService : IUserService
         userCommand.Parameters.AddWithValue("@username", username);
         userCommand.Parameters.AddWithValue("@email", email);
         userCommand.Parameters.AddWithValue("@phone_number", phoneNumber);
+        userCommand.Parameters.AddWithValue("@profile_picture_url", profilePictureUrl);
 
         try
         {
