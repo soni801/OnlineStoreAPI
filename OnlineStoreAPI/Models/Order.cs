@@ -7,5 +7,6 @@ public class Order
     public IEnumerable<OrderProduct> Products { get; set; } = null!;
     public Address Address { get; set; } = null!;
     public float TotalPrice { get; set; }
+    public string Status { get; set; } = null!;
     public DateTime Timestamp { get; set; }
 }

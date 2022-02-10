@@ -15,13 +15,13 @@ public class AuthController : Controller
     }
 
     [HttpGet]
-    public string VerifyCredentials(string user, string pass)
+    public string VerifyCredentials([FromHeader] string user, [FromHeader] string pass)
     {
         return _authService.VerifyCredentials(user, pass);
     }
 
     [HttpPost]
-    public bool UpdatePassphrase(string user, string pass, string newPass)
+    public bool UpdatePassphrase([FromHeader] string user, [FromHeader] string pass, [FromHeader] string newPass)
     {
         return _authService.UpdatePassphrase(user, pass, newPass);
     }

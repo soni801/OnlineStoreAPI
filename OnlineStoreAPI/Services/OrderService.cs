@@ -54,6 +54,7 @@ public class OrderService : IOrderService
                 Country = (string) reader["country"]
             };
             order.TotalPrice = (float) reader["total_price"];
+            order.Status = (string) reader["status"];
             order.Timestamp = (DateTime) reader["timestamp"];
         }
         reader.Close(); // Close the active reader to use new reader
@@ -156,6 +157,7 @@ public class OrderService : IOrderService
                     Country = (string) ordersReader["country"]
                 },
                 TotalPrice = (float) ordersReader["total_price"],
+                Status = (string) ordersReader["status"],
                 Timestamp = (DateTime) ordersReader["timestamp"]
             });
         }
@@ -196,6 +198,29 @@ public class OrderService : IOrderService
         command.Parameters.AddWithValue("@orderId", orderId);
         command.Parameters.AddWithValue("@productId", productId);
         command.Parameters.AddWithValue("@quantity", quantity);
+
+        try
+        {
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+        
+        return true;
+    }
+
+    public bool UpdateOrderStatus(int id, string status)
+    {
+        using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
+        const string commandString = "update online_store.orders set status = @status where id = @id";
+        var command = new MySqlCommand(commandString, connection);
+        
+        command.Parameters.AddWithValue("@id", id);
+        command.Parameters.AddWithValue("@status", status);
 
         try
         {

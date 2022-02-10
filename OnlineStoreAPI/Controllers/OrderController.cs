@@ -28,7 +28,7 @@ public class OrderController : Controller
     }
 
     [HttpPost("new")]
-    public bool CreateOrder(int userId, int addressId, float totalPrice)
+    public bool CreateOrder(int userId, [FromHeader] int addressId, float totalPrice)
     {
         return _orderService.CreateOrder(userId, addressId, totalPrice);
     }
@@ -37,5 +37,11 @@ public class OrderController : Controller
     public bool AddProductToOrder(int orderId, int productId, int quantity)
     {
         return _orderService.AddProductToOrder(orderId, productId, quantity);
+    }
+
+    [HttpPost("update")]
+    public bool UpdateOrderStatus(int id, string status)
+    {
+        return _orderService.UpdateOrderStatus(id, status);
     }
 }
