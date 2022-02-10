@@ -1,4 +1,6 @@
-﻿using MySqlConnector;
+﻿using System.Security.Cryptography;
+using System.Text;
+using MySqlConnector;
 using OnlineStoreAPI.Interfaces;
 using OnlineStoreAPI.Models;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
@@ -16,6 +18,14 @@ public class UserService : IUserService
             .Select(s => s[Random.Next(s.Length)]).ToArray());
     }
 
+    private static string ByteArrayToString(byte[] arrInput)
+    {
+        int i;
+        var sOutput = new StringBuilder(arrInput.Length);
+        for (i = 0; i < arrInput.Length; i++) sOutput.Append(arrInput[i].ToString("X2"));
+        return sOutput.ToString();
+    }
+    
     public User GetUser(int id)
     {
         var user = new User();
@@ -59,8 +69,11 @@ public class UserService : IUserService
         const string userString = "insert into online_store.users (first_name, last_name, username, email, phone_number, profile_picture_url) values (@first_name, @last_name, @username, @email, @phone_number, @profile_picture_url)";
         var userCommand = new MySqlCommand(userString, connection);
 
+        var passBytes = Encoding.UTF8.GetBytes(passphrase);
+        var passHash = SHA256.Create().ComputeHash(passBytes);
+        
         credentialsCommand.Parameters.AddWithValue("@username", username);
-        credentialsCommand.Parameters.AddWithValue("@passphrase", passphrase);
+        credentialsCommand.Parameters.AddWithValue("@passphrase", ByteArrayToString(passHash));
         credentialsCommand.Parameters.AddWithValue("@token", RandomString(64));
         credentialsCommand.Parameters.AddWithValue("@access_level", accessLevel);
 
