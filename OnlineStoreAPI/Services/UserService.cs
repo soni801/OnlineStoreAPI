@@ -59,14 +59,14 @@ public class UserService : IUserService
         return user;
     }
 
-    public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase, int accessLevel, string profilePictureUrl)
+    public bool CreateUser(string firstName, string lastName, string username, string email, int phoneNumber, string passphrase)
     {
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
         
-        const string credentialsString = "insert into online_store.credentials (username, passphrase, token, access_level) values (@username, @passphrase, @token, @access_level)";
+        const string credentialsString = "insert into online_store.credentials (username, passphrase, token) values (@username, @passphrase, @token)";
         var credentialsCommand = new MySqlCommand(credentialsString, connection);
         
-        const string userString = "insert into online_store.users (first_name, last_name, username, email, phone_number, profile_picture_url) values (@first_name, @last_name, @username, @email, @phone_number, @profile_picture_url)";
+        const string userString = "insert into online_store.users (first_name, last_name, username, email, phone_number) values (@first_name, @last_name, @username, @email, @phone_number)";
         var userCommand = new MySqlCommand(userString, connection);
 
         var passBytes = Encoding.UTF8.GetBytes(passphrase);
@@ -75,14 +75,12 @@ public class UserService : IUserService
         credentialsCommand.Parameters.AddWithValue("@username", username);
         credentialsCommand.Parameters.AddWithValue("@passphrase", ByteArrayToString(passHash));
         credentialsCommand.Parameters.AddWithValue("@token", RandomString(64));
-        credentialsCommand.Parameters.AddWithValue("@access_level", accessLevel);
 
         userCommand.Parameters.AddWithValue("@first_name", firstName);
         userCommand.Parameters.AddWithValue("@last_name", lastName);
         userCommand.Parameters.AddWithValue("@username", username);
         userCommand.Parameters.AddWithValue("@email", email);
         userCommand.Parameters.AddWithValue("@phone_number", phoneNumber);
-        userCommand.Parameters.AddWithValue("@profile_picture_url", profilePictureUrl);
 
         try
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStoreAPI.Interfaces;
+using OnlineStoreAPI.Models.Requests;
 
 namespace OnlineStoreAPI.Controllers;
 
@@ -15,14 +16,14 @@ public class AuthController : Controller
     }
 
     [HttpGet]
-    public string VerifyCredentials([FromHeader] string user, [FromHeader] string pass)
+    public string VerifyCredentials([FromBody] VerifyRequest payload)
     {
-        return _authService.VerifyCredentials(user, pass);
+        return _authService.VerifyCredentials(payload.Username, payload.Passphrase);
     }
 
     [HttpPost]
-    public bool UpdatePassphrase([FromHeader] string user, [FromHeader] string pass, [FromHeader] string newPass)
+    public bool UpdatePassphrase([FromBody] UpdateCredentialsRequest payload)
     {
-        return _authService.UpdatePassphrase(user, pass, newPass);
+        return _authService.UpdatePassphrase("", "", ""); // TODO: Fill this
     }
 }

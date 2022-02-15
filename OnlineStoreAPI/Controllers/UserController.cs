@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStoreAPI.Interfaces;
 using OnlineStoreAPI.Models;
+using OnlineStoreAPI.Models.Requests;
 
 namespace OnlineStoreAPI.Controllers;
 
@@ -22,9 +23,9 @@ public class UserController : Controller
     }
     
     [HttpPost]
-    public bool CreateUser([FromHeader] string firstName, [FromHeader] string lastName, [FromHeader] string username, [FromHeader] string email, [FromHeader] int phoneNumber, [FromHeader] string passphrase, int accessLevel, [FromHeader] string profilePictureUrl)
+    public bool CreateUser([FromBody] CreateUserRequest payload)
     {
-        return _userService.CreateUser(firstName, lastName, username, email, phoneNumber, passphrase, accessLevel, profilePictureUrl);
+        return _userService.CreateUser(payload.FirstName, payload.LastName, payload.Username, payload.Email, payload.PhoneNumber, payload.Passphrase);
     }
 
     [HttpDelete]
