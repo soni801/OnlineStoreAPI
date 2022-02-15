@@ -15,13 +15,13 @@ public class AuthController : Controller
         _authService = authService;
     }
 
-    [HttpGet]
+    [HttpPost]
     public string VerifyCredentials([FromBody] VerifyRequest payload)
     {
         return _authService.VerifyCredentials(payload.Username, payload.Passphrase);
     }
 
-    [HttpPost]
+    [HttpPost("update")]
     public bool UpdatePassphrase([FromBody] UpdateCredentialsRequest payload)
     {
         return _authService.UpdatePassphrase("", "", ""); // TODO: Fill this
