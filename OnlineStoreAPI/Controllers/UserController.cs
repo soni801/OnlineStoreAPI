@@ -29,8 +29,8 @@ public class UserController : Controller
     }
 
     [HttpDelete]
-    public bool DeleteUser(string username)
+    public bool DeleteUser([FromHeader] string token)
     {
-        return _userService.DeleteUser(username);
+        return _userService.DeleteUser(token);
     }
 }

@@ -97,17 +97,27 @@ public class UserService : IUserService
         return true;
     }
 
-    public bool DeleteUser(string username)
+    public bool DeleteUser(string token)
     {
+        var username = "";
+        
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
+
+        const string getUsernameString = "select username from online_store.credentials where token = @token";
+        var getUsernameCommand = new MySqlCommand(getUsernameString, connection);
+        getUsernameCommand.Parameters.AddWithValue("@token", token);
+
+        connection.Open();
+        using var reader = getUsernameCommand.ExecuteReader();
+        while (reader.Read()) username = (string) reader[0]; 
+        reader.Close();
+        
         const string commandString = "delete from online_store.users where username = @username; delete from online_store.credentials where username = @username";
         var command = new MySqlCommand(commandString, connection);
-
         command.Parameters.AddWithValue("@username", username);
 
         try
         {
-            connection.Open();
             command.ExecuteNonQuery();
         }
         catch (Exception e)
