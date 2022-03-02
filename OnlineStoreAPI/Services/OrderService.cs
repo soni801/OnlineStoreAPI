@@ -48,7 +48,7 @@ public class OrderService : IOrderService
                 AddressLine = (string) reader["address_line"],
                 PostalNumber = new PostalNumber
                 {
-                    Number = (int) reader["postal_number"],
+                    Number = (string) reader["postal_number"],
                     Place = (string) reader["postal_place"]
                 },
                 Country = (string) reader["country"]
@@ -151,7 +151,7 @@ public class OrderService : IOrderService
                     AddressLine = (string) ordersReader["address_line"],
                     PostalNumber = new PostalNumber
                     {
-                        Number = (int) ordersReader["postal_number"],
+                        Number = (string) ordersReader["postal_number"],
                         Place = (string) ordersReader["postal_place"]
                     },
                     Country = (string) ordersReader["country"]

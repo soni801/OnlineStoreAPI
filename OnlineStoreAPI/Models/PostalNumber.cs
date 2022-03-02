@@ -2,6 +2,6 @@
 
 public class PostalNumber
 {
-    public int Number { get; set; }
+    public string Number { get; set; } = null!;
     public string Place { get; set; } = null!;
 }
