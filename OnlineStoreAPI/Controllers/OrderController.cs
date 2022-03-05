@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStoreAPI.Interfaces;
 using OnlineStoreAPI.Models;
+using OnlineStoreAPI.Models.Requests;
 
 namespace OnlineStoreAPI.Controllers;
 
@@ -28,9 +29,9 @@ public class OrderController : Controller
     }
 
     [HttpPost("new")]
-    public bool CreateOrder(int userId, [FromHeader] int addressId, float totalPrice)
+    public bool CreateOrder([FromBody] CreateOrderRequest payload)
     {
-        return _orderService.CreateOrder(userId, addressId, totalPrice);
+        return _orderService.CreateOrder(payload.Token, payload.TotalPrice, payload.AddressName, payload.AddressLine, payload.PostalNumber, payload.Country);
     }
 
     [HttpPost("link")]

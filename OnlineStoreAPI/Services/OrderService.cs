@@ -165,27 +165,86 @@ public class OrderService : IOrderService
         return orders;
     }
 
-    public bool CreateOrder(int userId, int addressId, float totalPrice)
+    public bool CreateOrder(string token, float totalPrice, string addressName, string addressLine, string postalNumber, string country)
     {
+        // Declare fields
+        int? addressId = null;
+        int? userId = null;
+        
+        // Create a connection
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
-        const string commandString = "insert into online_store.orders (user_id, address_id, total_price) values (@userId, @addressId, @totalPrice)";
-        var command = new MySqlCommand(commandString, connection);
 
-        command.Parameters.AddWithValue("@userId", userId);
-        command.Parameters.AddWithValue("@addressId", addressId);
-        command.Parameters.AddWithValue("@totalPrice", totalPrice);
+        // Command for checking if the address exists
+        const string checkAddressString = "select id from online_store.addresses where address_name = @addressName and address_line = @addressLine and postal_number = @postalNumber and country = @country";
+        var checkAddressCommand = new MySqlCommand(checkAddressString, connection);
+        checkAddressCommand.Parameters.AddWithValue("@addressName", addressName);
+        checkAddressCommand.Parameters.AddWithValue("@addressLine", addressLine);
+        checkAddressCommand.Parameters.AddWithValue("@postalNumber", postalNumber);
+        checkAddressCommand.Parameters.AddWithValue("@country", country);
+
+        // Command for creating an address
+        const string createAddressString = "insert into online_store.addresses (address_name, address_line, postal_number, country) values (@addressName, @addressLine, @postalNumber, @country)";
+        var createAddressCommand = new MySqlCommand(createAddressString, connection);
+        createAddressCommand.Parameters.AddWithValue("@addressName", addressName);
+        createAddressCommand.Parameters.AddWithValue("@addressLine", addressLine);
+        createAddressCommand.Parameters.AddWithValue("@postalNumber", postalNumber);
+        createAddressCommand.Parameters.AddWithValue("@country", country);
+        
+        // Command for getting the user ID
+        const string checkUserString = "select id from online_store.users, online_store.credentials where users.username = credentials.username and token = @token";
+        var checkUserCommand = new MySqlCommand(checkUserString, connection);
+        checkUserCommand.Parameters.AddWithValue("@token", token);
+
+        // Command for creating the order
+        const string createOrderString = "insert into online_store.orders (user_id, address_id, total_price) values (@userId, @addressId, @totalPrice)";
+        var createOrderCommand = new MySqlCommand(createOrderString, connection);
+        createOrderCommand.Parameters.AddWithValue("@totalPrice", totalPrice);
 
         try
         {
+            // Open the connection
             connection.Open();
-            command.ExecuteNonQuery();
+            
+            // Check if the address exists
+            using var addressReader = checkAddressCommand.ExecuteReader();
+            while (addressReader.Read()) addressId = (int) addressReader[0];
+            addressReader.Close();
+
+            // If the address doesn't exist, create it
+            if (addressId == null)
+            {
+                createAddressCommand.ExecuteNonQuery();
+
+                // Get the ID of the newly created address
+                using var addressConfirmReader = checkAddressCommand.ExecuteReader();
+                while (addressConfirmReader.Read()) addressId = (int) addressConfirmReader[0];
+                addressConfirmReader.Close();
+            }
+
+            // Get the ID of the user
+            using var userReader = checkUserCommand.ExecuteReader();
+            while (userReader.Read()) userId = (int) userReader[0];
+            userReader.Close();
+
+            // If the ID has not been acquired (likely means invalid token), exit and return false
+            if (userId == null) return false;
+
+            // Add the acquired parameters to createOrderCommand
+            createOrderCommand.Parameters.AddWithValue("@userId", userId);
+            createOrderCommand.Parameters.AddWithValue("@addressId", addressId);
+
+            // Create the order
+            createOrderCommand.ExecuteNonQuery();
+            connection.Close();
         }
         catch (Exception e)
         {
+            // Print any runtime errors
             Console.WriteLine(e);
             return false;
         }
-        
+
+        // Return true when execution succeeded
         return true;
     }
 
