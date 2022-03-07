@@ -165,12 +165,13 @@ public class OrderService : IOrderService
         return orders;
     }
 
-    public bool CreateOrder(string token, float totalPrice, string addressName, string addressLine, string postalNumber, string country)
+    public int CreateOrder(string token, float totalPrice, string addressName, string addressLine, string postalNumber, string country)
     {
         // Declare fields
         int? addressId = null;
         int? userId = null;
-        
+        var orderId = -1;
+
         // Create a connection
         using var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
 
@@ -199,6 +200,11 @@ public class OrderService : IOrderService
         const string createOrderString = "insert into online_store.orders (user_id, address_id, total_price) values (@userId, @addressId, @totalPrice)";
         var createOrderCommand = new MySqlCommand(createOrderString, connection);
         createOrderCommand.Parameters.AddWithValue("@totalPrice", totalPrice);
+        
+        // Command for getting the order ID
+        // This may fail if requests are executed in parallel
+        const string getOrderString = "select id from online_store.orders where user_id = @userId and address_id = @addressId order by timestamp desc limit 1";
+        var getOrderCommand = new MySqlCommand(getOrderString, connection);
 
         try
         {
@@ -226,26 +232,33 @@ public class OrderService : IOrderService
             while (userReader.Read()) userId = (int) userReader[0];
             userReader.Close();
 
-            // If the ID has not been acquired (likely means invalid token), exit and return false
-            if (userId == null) return false;
+            // If the ID has not been acquired (likely means invalid token), exit and return -1 (signalises error to frontend).
+            if (userId == null) return -1;
 
-            // Add the acquired parameters to createOrderCommand
+            // Add the acquired parameters to various commands
             createOrderCommand.Parameters.AddWithValue("@userId", userId);
             createOrderCommand.Parameters.AddWithValue("@addressId", addressId);
+            
+            getOrderCommand.Parameters.AddWithValue("@userId", userId);
+            getOrderCommand.Parameters.AddWithValue("@addressId", addressId);
 
             // Create the order
             createOrderCommand.ExecuteNonQuery();
+            
+            // Get the ID of the newly created order
+            using var orderReader = getOrderCommand.ExecuteReader();
+            while (orderReader.Read()) orderId = (int) orderReader[0];
             connection.Close();
         }
         catch (Exception e)
         {
             // Print any runtime errors
             Console.WriteLine(e);
-            return false;
+            return -1;
         }
 
         // Return true when execution succeeded
-        return true;
+        return orderId;
     }
 
     public bool AddProductToOrder(int orderId, int productId, int quantity)

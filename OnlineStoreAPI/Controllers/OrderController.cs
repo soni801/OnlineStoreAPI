@@ -29,7 +29,7 @@ public class OrderController : Controller
     }
 
     [HttpPost("new")]
-    public bool CreateOrder([FromBody] CreateOrderRequest payload)
+    public int CreateOrder([FromBody] CreateOrderRequest payload)
     {
         return _orderService.CreateOrder(payload.Token, payload.TotalPrice, payload.AddressName, payload.AddressLine, payload.PostalNumber, payload.Country);
     }
